@@ -12,7 +12,8 @@ class ViewController: UIViewController, WKNavigationDelegate {
     
     var webView: WKWebView!
     var progressView: UIProgressView!
-    let permittedWebsites = ["apple.com", "google.com"]
+    var permittedWebsites: [String]!
+    var websiteToOpen: String!
     
     override func loadView() {
         webView = WKWebView()
@@ -25,16 +26,18 @@ class ViewController: UIViewController, WKNavigationDelegate {
         
         let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let refresh = UIBarButtonItem(barButtonSystemItem: .refresh, target: webView, action: #selector(webView.reload))
+        let back = UIBarButtonItem(title: "<", style: .plain, target: webView, action: #selector(webView.goBack))
+        let forward = UIBarButtonItem(title: ">", style: .plain, target: webView, action: #selector(webView.goForward))
         
         progressView = UIProgressView(progressViewStyle: .default)
         progressView.sizeToFit()
         let progressButton = UIBarButtonItem(customView: progressView)
-        toolbarItems = [progressButton, spacer, refresh]
+        toolbarItems = [progressButton, spacer, back, forward, refresh]
         navigationController?.isToolbarHidden = false
         
         webView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
         
-        let url = URL(string: "https://\(permittedWebsites[0])")!
+        let url = URL(string: "https://" + websiteToOpen)!
         webView.load(URLRequest(url: url))
         webView.allowsBackForwardNavigationGestures = true
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Open", style: .plain, target: self, action: #selector(openTapped))
@@ -74,6 +77,9 @@ class ViewController: UIViewController, WKNavigationDelegate {
                     return
                 }
             }
+            let alert = UIAlertController(title: "Error", message: "This url is not allowed", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            present(alert, animated: true)
         }
         
         decisionHandler(.cancel)
