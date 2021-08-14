@@ -23,6 +23,7 @@ class ViewController: UIViewController {
             scoreLabel.text = "Score: \(score)"
         }
     }
+    var guessedWords = 0
     var level = 1
     
     override func loadView() {
@@ -74,6 +75,8 @@ class ViewController: UIViewController {
         
         let buttonsView = UIView()
         buttonsView.translatesAutoresizingMaskIntoConstraints = false
+        buttonsView.layer.borderWidth = 1
+        buttonsView.layer.borderColor = UIColor.gray.cgColor
         view.addSubview(buttonsView)
         
         NSLayoutConstraint.activate([
@@ -154,12 +157,18 @@ class ViewController: UIViewController {
             
             currentAnswer.text = ""
             score += 1
+            guessedWords += 1
             
-            if score % 7 == 0 {
+            if guessedWords % 7 == 0 {
                 let ac = UIAlertController(title: "Well Done", message: "Are you ready for the next level?", preferredStyle: .alert)
                 ac.addAction(UIAlertAction(title: "Let's go!", style: .default, handler: levelUp))
                 present(ac, animated: true)
             }
+        } else {
+            score -= 1
+            let ac = UIAlertController(title: "Oops", message: "You're wrong", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "I'll try again", style: .default))
+            present(ac, animated: true)
         }
     }
     
