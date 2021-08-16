@@ -17,16 +17,8 @@ class ViewController: UITableViewController {
         title = "Storm Viewer"
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Recommend the app", style: .plain, target: self, action: #selector(recommend))
-        let fm = FileManager.default
-        let path = Bundle.main.resourcePath!
-        let items = try! fm.contentsOfDirectory(atPath: path)
         
-        for item in items {
-            if(item.hasPrefix("nssl")){
-                pictures.append(item)
-            }
-        }
-        pictures.sort()
+        performSelector(inBackground: #selector(loadPictures), with: nil)
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -51,6 +43,24 @@ class ViewController: UITableViewController {
         let vc = UIActivityViewController(activityItems: ["Hey, everyone! I am using Storm Viewer app"], applicationActivities: [])
         vc.popoverPresentationController?.barButtonItem = navigationItem.rightBarButtonItem
         present(vc, animated: true)
+    }
+    
+    @objc func loadPictures() {
+        let fm = FileManager.default
+        let path = Bundle.main.resourcePath!
+        let items = try! fm.contentsOfDirectory(atPath: path)
+        
+        for item in items {
+            if(item.hasPrefix("nssl")){
+                pictures.append(item)
+            }
+        }
+        pictures.sort()
+        
+        DispatchQueue.main.async {
+            [weak self] in
+            self?.tableView.reloadData()
+        }
     }
 }
 
